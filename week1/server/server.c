@@ -66,7 +66,10 @@ int main(int argc, char ** argv) {
             close(client_sockfd);
         }
 
-        sprintf(message," Send to Client : %s %s", inet_ntoa(clientaddr.sin_addr), str_reverse(buf));
+        sprintf(message,"Original String : %s", buf);
+        log_write(INFO, message);
+
+        sprintf(message,"Reverse String : %s", str_reverse(buf));
         log_write(INFO, message);
 
         close(client_sockfd);
