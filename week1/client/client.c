@@ -17,7 +17,6 @@ int main(int argc, char ** argv) {
     char buf[MAX_LINE];
     int len;
 
-
     while(1) {
         if((server_sockfd = socket(AF_INET, SOCK_STREAM, 0 )) == -1 ) {
             perror("error : ");
