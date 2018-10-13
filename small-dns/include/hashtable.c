@@ -129,3 +129,17 @@ char *ht_get( hashtable_t *hashtable, char *key ) {
 	}
 
 }
+
+
+void ht_print(hashtable_t *hashtable) {
+    int i;
+    entry_t *first;
+
+    for(i = 0 ; i < hashtable->size; i ++ ){
+        first = hashtable->table[i];
+        while(first != NULL ) {
+            printf("%s %s\n", first->key, first->value);
+            first = first->next;
+        }
+    }
+}

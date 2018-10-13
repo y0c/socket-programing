@@ -1,0 +1,5 @@
+/home/parallels/Documents/network/practice1/small-dns/CMakeFiles/edit_cache.dir
+/home/parallels/Documents/network/practice1/small-dns/CMakeFiles/server.out.dir
+/home/parallels/Documents/network/practice1/small-dns/CMakeFiles/client.out.dir
+/home/parallels/Documents/network/practice1/small-dns/CMakeFiles/test.out.dir
+/home/parallels/Documents/network/practice1/small-dns/CMakeFiles/rebuild_cache.dir

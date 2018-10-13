@@ -1,0 +1,1 @@
+/usr/bin/cc   -g -ggdb   CMakeFiles/server.out.dir/server/main.o CMakeFiles/server.out.dir/include/str.o CMakeFiles/server.out.dir/include/hashtable.o CMakeFiles/server.out.dir/include/common.o CMakeFiles/server.out.dir/include/db.o  -o bin/server.out -rdynamic 

@@ -1,0 +1,1 @@
+/usr/bin/cc   -g -ggdb   CMakeFiles/test.out.dir/test/hashtable_test.o CMakeFiles/test.out.dir/include/str.o CMakeFiles/test.out.dir/include/hashtable.o CMakeFiles/test.out.dir/include/common.o CMakeFiles/test.out.dir/include/db.o  -o bin/test.out -rdynamic 

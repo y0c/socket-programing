@@ -1,5 +1,5 @@
 #ifndef HASHTABLE_H
-
+#define HASHTABLE_H
 #include <stdlib.h>
 #include <stdio.h>
 #include <limits.h>
@@ -33,5 +33,7 @@ void ht_set( hashtable_t *hashtable, char *key, char *value );
 
 /* Retrieve a key-value pair from a hash table. */
 char *ht_get( hashtable_t *hashtable, char *key );
+
+void ht_print(hashtable_t* hashtable);
 
 #endif

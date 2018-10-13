@@ -1,0 +1,1 @@
+/usr/bin/cc   -g -ggdb   CMakeFiles/client.out.dir/client/main.o CMakeFiles/client.out.dir/include/str.o CMakeFiles/client.out.dir/include/hashtable.o CMakeFiles/client.out.dir/include/common.o CMakeFiles/client.out.dir/include/db.o  -o bin/client.out -rdynamic 
