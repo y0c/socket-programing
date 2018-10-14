@@ -67,7 +67,6 @@ void savetest() {
         hostdata->hit = 0;
 
         ht_set(hashtable, domains[i], serialize(hostdata));
-        save_hashtable(fp, hashtable);
 
         get = ht_get(hashtable, domains[i]);
 
@@ -78,7 +77,6 @@ void savetest() {
             hostdata = deserialize(get);
             hostdata->hit = hostdata->hit+1;
             ht_set(hashtable, domains[i], serialize(hostdata));
-            save_hashtable(fp, hashtable);;
         }
 
 
@@ -152,6 +150,8 @@ int main(void){
     printf("%s\n", serialize(deserialize(get)));
     */
 
+    /*
+     *
     FILE* fp = fopen("test.txt","wb+");
 
     fprintf(fp,"test\n");
@@ -162,4 +162,35 @@ int main(void){
     rewind(fp);
     fprintf(fp, "%d\n",2323434);
     fclose(fp);
+    */
+
+    /*
+    char test[10];
+    FILE* fp = fopen("temp.txt", "w+");
+    memset(test, ' ', 10);
+    sprintf(test, "%10d", 10);
+    fprintf(fp, "%s\n", test);
+    fclose(fp);
+    */
+
+
+    FILE* fp = fopen("dns.db", "r+");
+
+    char buffer[1000];
+    char temp[300];
+    char* query = "google.co.kr";
+    host_data* hostdata;
+    char** read_data;
+
+    while(!feof(fp) && fgets(buffer,1000,fp)) {
+        read_data = str_split(buffer,"#");
+        str_rmchr(read_data[1], '\n');
+        if( strcmp(read_data[0], query) == 0 ){
+            hostdata = deserialize(read_data[1]);
+            hostdata->hit = hostdata->hit+100000;
+            fseek(fp, (strlen(read_data[1])+1) *-1,SEEK_CUR);
+            fprintf(fp,"%s\n", serialize(hostdata));
+        }
+    }
+
 }

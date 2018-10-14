@@ -20,12 +20,11 @@ int main(int argc, char* argv[]) {
     host_data *hostdata;
     struct sockaddr_in addr, cliaddr, hostaddr;
     struct hostent *hostent;
-    FILE* fp = fopen("dns.db", "r+");
     FILE* fp_log = fopen("server.log", "a+");
-    hashtable_t *hashtable;
+    hashtable_t *hashtable = ht_create(65000);
 
-    if( fp != NULL ) {
-        hashtable = load_db(fp);
+    if( file_exists("dns.db") ) {
+        hashtable = load_db();
     }
 
     if((sockfd = socket(AF_INET, SOCK_DGRAM, 0)) == -1 ){
@@ -95,14 +94,14 @@ int main(int argc, char* argv[]) {
             }
             data = serialize(hostdata);
             ht_set(hashtable,query,data);
-            insert_dns_record(fp, query, data);
+            insert_dns_record(query, data);
         } else {
             hostdata = deserialize(data);
             hostdata->hit = hostdata->hit+1;
 
             data = serialize(hostdata);
             ht_set(hashtable,query,data);
-            save_hashtable(fp, hashtable);
+            update_dns_record(query, data);
         }
 
         if( sdata.status == SUCCESS ) {
