@@ -58,9 +58,10 @@ char* serialize(struct host_data* hd) {
         sizeof(char)
     );
 
+
     sprintf(
         result,
-        "%s|%d|%d|%s|%s|%d",
+        "%s|%d|%d|%s|%s|%10d",
         hd->h_name,
         hd->h_addrtype,
         hd->h_length,
