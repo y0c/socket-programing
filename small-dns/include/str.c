@@ -41,20 +41,26 @@ char** str_split(const char* str, const char* delim)
     int cnt = 1;
     int idx = 0;
     char* token;
-    tmp = (char*) malloc(strlen(str));
+
+    if( str == NULL ) {
+        return NULL;
+    }
+
+    tmp = (char*) calloc(strlen(str),sizeof(char));
     strcpy(tmp,str);
 
     while ((token = str_sep(&tmp, delim)) != NULL) {
         cnt++;
     }
 
-    result = (char**)malloc(sizeof(char*) * cnt);
+    result = (char**)calloc(cnt,sizeof(char*));
 
     free(tmp);
-    tmp = (char*) malloc(strlen(str));
+    tmp = (char*) calloc(strlen(str),sizeof(char));
+
     strcpy(tmp,str);
     while ((token = str_sep(&tmp, delim)) != NULL) {
-        result[idx] = (char*)malloc(sizeof(char*)*strlen(token));
+        result[idx] = (char*)calloc(strlen(token),sizeof(char*));
         strcpy(result[idx++],token);
     }
 
@@ -64,7 +70,7 @@ char** str_split(const char* str, const char* delim)
 
 char* str_join(char** str, char* delim)
 {
-    char* result = (char*)malloc(10);
+    char* result = (char*)calloc(10,sizeof(char));
     char** tmp = str;
 
     while(*tmp != NULL){
@@ -82,7 +88,7 @@ char* str_join(char** str, char* delim)
 char* str_add(char* str1, char* str2) {
     char* result;
 
-    if((result = (char*)malloc(strlen(str1) + strlen(str2)+1)) != NULL) {
+    if((result = (char*)calloc(strlen(str1) + strlen(str2)+1,sizeof(char))) != NULL) {
         result[0] = '\0';
         strcat(result,str1);
         strcat(result,str2);

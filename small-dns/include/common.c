@@ -1,5 +1,17 @@
 #include "common.h"
 
+int is_valid_ip_address(char *ip_address)
+{
+    int a[4];
+    int i;
+    int rc = sscanf(ip_address, "%d.%d.%d.%d", &a[0], &a[1], &a[2], &a[3]);
+    if (rc < 4) return 0;
+    for(i = 0; i < 4; i ++ )
+        if(a[i] > 255 || a[i] <= 0 ) return 0;
+
+    return 1;
+}
+
 int get_row_number(char** str_list){
     char** temp = str_list;
     int i = 0;
@@ -42,7 +54,7 @@ char* serialize(struct host_data* hd) {
         sizeof(hd->h_length) +
         strlen(aliases) +
         strlen(addr_list) +
-        10,
+        100,
         sizeof(char)
     );
 
@@ -64,6 +76,10 @@ struct host_data* deserialize(char* str) {
     host_data* hostdata = (host_data*) malloc(sizeof(host_data));
     char** data = str_split(str,"|");
 
+    if(str == NULL ) {
+        return NULL;
+    }
+
     hostdata->h_name = data[0];
     hostdata->h_addrtype = atoi(data[1]);
     hostdata->h_length = atoi(data[2]);
@@ -72,4 +88,19 @@ struct host_data* deserialize(char* str) {
     hostdata->hit = atoi(data[5]);
 
     return hostdata;
+}
+
+void log_write(FILE *f,char* level,  char* message) {
+
+    time_t timer;
+    char buffer[26];
+    struct tm* tm_info;
+
+    time(&timer);
+    tm_info = localtime(&timer);
+
+    strftime(buffer, 26, "%Y-%m-%d %H:%M:%S", tm_info);
+    printf("%s [%s] %s\n",level, buffer, message);
+    fprintf(f, "%s [%s] %s\n",level, buffer, message);
+    fflush(f);
 }

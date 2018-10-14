@@ -4,17 +4,6 @@
 #include "db.h"
 
 
-int is_valid_ip_address(char *ip_address)
-{
-    int a[4];
-    int i;
-    int rc = sscanf(ip_address, "%d.%d.%d.%d", &a[0], &a[1], &a[2], &a[3]);
-    if (rc < 4) return 0;
-    for(i = 0; i < 4; i ++ )
-        if(a[i] > 255 || a[i] <= 0 ) return 0;
-
-    return 1;
-}
 /**
  * Command line arguments
  * -------------------------------
@@ -24,6 +13,7 @@ int is_valid_ip_address(char *ip_address)
 int main(int argc, char* argv[]) {
     int sockfd;
     sock_data sdata;
+    char message[300];
     char* query;
     char* data;
     socklen_t adr_sz;
@@ -31,7 +21,12 @@ int main(int argc, char* argv[]) {
     struct sockaddr_in addr, cliaddr, hostaddr;
     struct hostent *hostent;
     FILE* fp = fopen("dns.db", "r+");
-    hashtable_t *hashtable = load_db(fp);
+    FILE* fp_log = fopen("server.log", "a+");
+    hashtable_t *hashtable;
+
+    if( fp != NULL ) {
+        hashtable = load_db(fp);
+    }
 
     if((sockfd = socket(AF_INET, SOCK_DGRAM, 0)) == -1 ){
         printf("socket error");
@@ -53,13 +48,18 @@ int main(int argc, char* argv[]) {
         adr_sz = sizeof(cliaddr);
         recvfrom(sockfd, (void*)&sdata, sizeof(sdata), 0, (struct sockaddr*)&cliaddr, &adr_sz);
 
-        printf("Client Info : %s (%d)\n", inet_ntoa(cliaddr.sin_addr), ntohs(cliaddr.sin_port));
-        printf("%s\n", sdata.body);
+        sprintf(message,"Client Info : %s (%d)", inet_ntoa(cliaddr.sin_addr), ntohs(cliaddr.sin_port));
+        log_write(fp_log, INFO, message);
+
+        sprintf(message,"Query : %s", sdata.body);
+        log_write(fp_log, INFO, message);
 
         query = (char*)malloc((sizeof(char))* strlen(sdata.body));
         strcpy(query, sdata.body);
 
         hostdata = (host_data*) malloc(sizeof(host_data));
+
+        sdata.status = SUCCESS;
 
         if((data=ht_get(hashtable,query)) == NULL) {
 
@@ -70,41 +70,50 @@ int main(int argc, char* argv[]) {
                 hostent = gethostbyaddr((char*)&hostaddr.sin_addr, 4, AF_INET);
 
                 if(hostent == NULL) {
-                    printf("invalid host\n");
+                    sdata.status = INVALID_IP;
+                    log_write(fp_log, ERROR, "Invalid IP !!");
                 }
             } else {
                 hostent = gethostbyname(query);
 
                 if(hostent == NULL){
-                    printf("invalid DNS\n");
+                    sdata.status = INVALID_DNS;
+                    log_write(fp_log, ERROR, "Invalid DNS !!");
                 }
             }
 
-            hostdata->h_name = hostent->h_name;
-            hostdata->h_addrtype = hostent->h_addrtype;
-            hostdata->h_length = hostent->h_length;
-            hostdata->h_aliases = convert_addr(hostent->h_aliases);
-            hostdata->h_addr_list = convert_addr(hostent->h_addr_list);
-            hostdata->hit = 0;
+            if( sdata.status == SUCCESS ) {
+                hostdata->h_name = hostent->h_name;
+                hostdata->h_addrtype = hostent->h_addrtype;
+                hostdata->h_length = hostent->h_length;
+                hostdata->h_aliases = hostent->h_aliases;
+                hostdata->h_addr_list = convert_addr(hostent->h_addr_list);
+                hostdata->hit = 1;
 
+                sprintf(message,"Result : %s ", serialize(hostdata));
+                log_write(fp_log, INFO, message);
+            }
             data = serialize(hostdata);
-            ht_set(hashtable, query, data);
+            ht_set(hashtable,query,data);
+            insert_dns_record(fp, query, data);
         } else {
             hostdata = deserialize(data);
             hostdata->hit = hostdata->hit+1;
 
             data = serialize(hostdata);
             ht_set(hashtable,query,data);
-            fp = fopen("dns.db", "w");
             save_hashtable(fp, hashtable);
+        }
+
+        if( sdata.status == SUCCESS ) {
+            strcpy(sdata.body, data);
+            sdata.body[strlen(data) + 1] = '\0';
+            sdata.content_length = strlen(data);
         }
 
         free(hostdata);
         free(query);
 
-        strcpy(sdata.body, data);
-        sdata.body[strlen(data) + 1] = '\0';
-        sdata.content_length = strlen(data);
 
         sendto(sockfd, (void*)&sdata, sizeof(sdata),0,(struct sockaddr*)&cliaddr, adr_sz);
 

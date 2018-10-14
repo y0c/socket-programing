@@ -3,46 +3,108 @@
 #include "str.h"
 #include "db.h"
 
-int insert_dns_record(FILE* fp, char* query, host_data* record) {
-    char* data = serialize(record);
-    host_data* temp = (host_data*)malloc(sizeof(host_data));
-    char* record_data = (char*)malloc(strlen(data)+strlen(query)+1);
+void print_host_ent(host_data *hd) {
+    printf("Official name : %s\n", hd->h_name);
+    printf("Host Type : %s\n", hd->h_addrtype==AF_INET ? "ipv4" : "ipv6");
+    printf("Host Length : %d\n", hd->h_length);
 
-    sprintf(record_data,"%s#%s\n", query, data);
+    printf("Host Aliases\n");
+    while(*hd->h_aliases != NULL ){
+        printf("%s\n",  *hd->h_aliases);
+        hd->h_aliases++;
+    }
+
+    printf("Host Addr List\n");
+    while(*hd->h_addr_list != NULL ){
+        printf("%s\n", *hd->h_addr_list);
+        hd->h_addr_list++;
+    }
+    printf("Hit: %d\n", hd->hit);
 }
+
 
 
 void savetest() {
 
     FILE* fp = fopen("dns.db", "w+");
 
+    char* get;
     hashtable_t *hashtable = ht_create(65000);
     char *domains[] = {
         "naver.com",
-        "naver.com",
-        "naver.com",
-        "naver.com",
         "www.naver.com",
+        "daum.com",
+        "www.daum.com",
+        "amazone.com",
+        "trello.com",
+        "facebook.com",
+        "smartncs.co.kr",
         "google.co.kr",
         "hs.ac.kr",
-        "facebook.com",
-        "smartncs.co.kr"
+        "apple.com",
+        "mail.naver.com",
+        "slack.com",
+        "melon.com",
+        "github.com",
+        "gitlab.com",
+        "ebs.com",
+        "ebs.co.kr",
+        "gabia.com",
+        "docker.io",
+        "stackoverflow.com",
     };
     int i = 0;
 
-    for(i = 0 ; i < 9 ; i ++ ){
+    for(i = 0 ; i < 20; i++ ){
         struct hostent* hostent = gethostbyname(domains[i]);
         host_data* hostdata = (host_data*)malloc(sizeof(host_data));
 
         hostdata->h_name = hostent->h_name;
         hostdata->h_addrtype = hostent->h_addrtype;
         hostdata->h_length = hostent->h_length;
-        hostdata->h_aliases = hostent->h_aliases;
-        hostdata->h_addr_list = hostent->h_addr_list;
+        hostdata->h_aliases = convert_addr(hostent->h_aliases);
+        hostdata->h_addr_list = convert_addr(hostent->h_addr_list);
         hostdata->hit = 0;
 
         ht_set(hashtable, domains[i], serialize(hostdata));
         save_hashtable(fp, hashtable);
+
+        get = ht_get(hashtable, domains[i]);
+
+        if(get == NULL ) {
+            printf("#####################");
+            printf("%s\n", domains[i]);
+        } else {
+            hostdata = deserialize(get);
+            hostdata->hit = hostdata->hit+1;
+            ht_set(hashtable, domains[i], serialize(hostdata));
+            save_hashtable(fp, hashtable);;
+        }
+
+
+
+
+        //printf("%s\n", serialize(hostdata));
+        //
+        /*
+        printf("Print no join\n");
+        while(*hostdata->h_aliases != NULL ) {
+            printf("%s\n", *hostdata->h_aliases);
+            hostdata->h_aliases++;
+        }
+
+        while(*hostdata->h_addr_list != NULL ) {
+            printf("%s\n", *hostdata->h_addr_list);
+            hostdata->h_addr_list++;
+        }
+        */
+
+        /*
+        printf("Print Join After\n");
+
+        printf("%s\n", str_join(hostdata->h_aliases, ","));
+        printf("%s\n", str_join(hostdata->h_addr_list, ","));
+        */
     }
 }
 
@@ -65,5 +127,39 @@ void remchar(char *s, char chr)
 }
 int main(void){
 
-    savetest();
+    //savetest();
+  //
+  //
+  /*
+    struct hostent* hostent = gethostbyname("www.naver.com");
+
+    hashtable_t* table = ht_create(1000);
+    host_data* hostdata = (host_data*)malloc(sizeof(host_data));
+    char* get;
+
+    hostdata->h_name = hostent->h_name;
+    hostdata->h_addrtype = hostent->h_addrtype;
+    hostdata->h_length = hostent->h_length;
+    hostdata->h_aliases = convert_addr(hostent->h_aliases);
+    hostdata->h_addr_list = convert_addr(hostent->h_addr_list);
+    hostdata->hit = 0;
+
+
+    ht_set(table,"www.naver.com", serialize(deserialize(serialize(hostdata))));
+
+    get = ht_get(table,"www.naver.com");
+
+    printf("%s\n", serialize(deserialize(get)));
+    */
+
+    FILE* fp = fopen("test.txt","wb+");
+
+    fprintf(fp,"test\n");
+    fprintf(fp,"test\n");
+    fprintf(fp,"test\n");
+
+
+    rewind(fp);
+    fprintf(fp, "%d\n",2323434);
+    fclose(fp);
 }

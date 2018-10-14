@@ -82,6 +82,7 @@ void ht_set( hashtable_t *hashtable, char *key, char *value ) {
 
 	/* There's already a pair.  Let's replace that string. */
 	if( next != NULL && next->key != NULL && strcmp( key, next->key ) == 0 ) {
+        printf("%s\n", value);
 
 		free( next->value );
 		next->value = strdup( value );
