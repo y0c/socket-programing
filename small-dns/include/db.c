@@ -28,17 +28,18 @@ void insert_dns_record(char* query, char* data) {
  *  char*data: 검색결과를 직렬화한 문자열
  */
 void update_dns_record(char* query, char* data) {
-    char buffer[1000];
+    char buffer1[200];
+    char buffer2[400];
     char** read_data;
     FILE* fp = fopen("dns.db", "r+");
-    while(!feof(fp) && fgets(buffer,1000,fp)) {
-        read_data = str_split(buffer,"#");
-        str_rmchr(read_data[1], '\n');
-        if( strcmp(read_data[0], query) == 0 ){
-            fseek(fp, (strlen(read_data[1])+1) *-1,SEEK_CUR);
+    while(!feof(fp) && fscanf(fp, "%s#%s\n", buffer1, buffer2)) {
+        //str_rmchr(read_data[1], '\n');
+        if( strcmp(buffer1, query) == 0 ){
+            fseek(fp, (strlen(buffer2)+1) *-1,SEEK_CUR);
             fprintf(fp,"%s\n", data);
         }
     }
+    fclose(fp);
 }
 
 /**

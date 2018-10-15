@@ -60,6 +60,7 @@ char** str_split(const char* str, const char* delim)
 {
     char** result;
     char* tmp;
+    char* tmp1;
     int cnt = 1;
     int idx = 0;
     char* token;
@@ -69,7 +70,7 @@ char** str_split(const char* str, const char* delim)
     }
 
     tmp = (char*) calloc(strlen(str),sizeof(char));
-    strcpy(tmp,str);
+    strncpy(tmp,str,strlen(str));
 
     while ((token = str_sep(&tmp, delim)) != NULL) {
         cnt++;
@@ -77,16 +78,14 @@ char** str_split(const char* str, const char* delim)
 
     result = (char**)calloc(cnt,sizeof(char*));
 
-    free(tmp);
-    tmp = (char*) calloc(strlen(str),sizeof(char));
+    tmp1 = (char*) calloc(strlen(str),sizeof(char));
 
-    strcpy(tmp,str);
-    while ((token = str_sep(&tmp, delim)) != NULL) {
+    strncpy(tmp1,str,strlen(str));
+    while ((token = str_sep(&tmp1, delim)) != NULL) {
         result[idx] = (char*)calloc(strlen(token),sizeof(char*));
-        strcpy(result[idx++],token);
+        strncpy(result[idx++],token,strlen(token));
     }
 
-    free(tmp);
     return result;
 }
 

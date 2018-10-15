@@ -111,7 +111,7 @@ char* serialize(struct host_data* hd) {
  *  return: host_data 구조체
  */
 struct host_data* deserialize(char* str) {
-    host_data* hostdata = (host_data*) malloc(sizeof(host_data));
+    host_data* hostdata = (host_data*) calloc(1,sizeof(host_data));
     char** data = str_split(str,"|");
 
     if(str == NULL ) {

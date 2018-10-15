@@ -49,10 +49,10 @@ int main(int argc, char* argv[]) {
         sprintf(message,"Query : %s", sdata.body);
         log_write(fp_log, INFO, message);
 
-        query = (char*)malloc((sizeof(char))* strlen(sdata.body));
+        query = (char*)calloc((sizeof(char))* (strlen(sdata.body)+1),1);
         strcpy(query, sdata.body);
 
-        hostdata = (host_data*) malloc(sizeof(host_data));
+        hostdata = (host_data*) calloc(1,sizeof(host_data));
 
         sdata.status = SUCCESS;
 
