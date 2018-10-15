@@ -1,27 +1,15 @@
 #include "db.h"
 
-void save_hashtable(hashtable_t * hashtable) {
-    int i;
-    entry_t *first;
-    char* record_data;
-    FILE* fp = fopen("dns.db", "w+");
 
-    for(i = 0 ; i < hashtable->size; i ++ ){
-        first = hashtable->table[i];
-        while(first != NULL ) {
-            record_data = (char*)calloc(strlen(first->key)+strlen(first->value)+100, sizeof(char));
-            sprintf(record_data,"%s#%s\n", first->key, first->value);
-            if( strlen(record_data) > 1) {
-                fputs(record_data, fp);
-                fflush(fp);
-            }
-            first = first->next;
-        }
-    }
-
-    fclose(fp);
-}
-
+/**
+ * Function: insert_dns_record
+ * File DB에 DNS Record 추가
+ * --------------------------------------
+ *  char*query: 검색한 query
+ *  char*data: 검색결과를 직렬화한 문자열
+ *  File에 기록은
+ *  검색Key#검색결과 의 형태로 저장하게된다.
+ */
 void insert_dns_record(char* query, char* data) {
     char* record_data;
     FILE* fp = fopen("dns.db", "a+");
@@ -32,6 +20,13 @@ void insert_dns_record(char* query, char* data) {
     fclose(fp);
 }
 
+/**
+ * Function: update_dns_record
+ * File DB에 특정 query로 검색하여 hit를 update한다.
+ * --------------------------------------
+ *  char*query: 검색한 query
+ *  char*data: 검색결과를 직렬화한 문자열
+ */
 void update_dns_record(char* query, char* data) {
     char buffer[1000];
     char** read_data;
@@ -46,6 +41,11 @@ void update_dns_record(char* query, char* data) {
     }
 }
 
+/**
+ * Function: load_db
+ * File DB에서 해쉬테이블(메모리)로 데이터 로딩
+ * --------------------------------------
+ */
 hashtable_t* load_db() {
     hashtable_t* hashtable = ht_create(65000);
     char buffer[1000];
@@ -61,6 +61,13 @@ hashtable_t* load_db() {
     return hashtable;
 }
 
+/**
+ * Function: file_exists
+ * File이 있는지 체크
+ * --------------------------------------
+ *  char*fname: 파일명
+ *  return : true or false
+ */
 int file_exists(const char *fname)
 {
     FILE *file;

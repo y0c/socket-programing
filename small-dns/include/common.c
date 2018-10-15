@@ -1,5 +1,12 @@
 #include "common.h"
 
+/**
+ * Function: is_valid_ip_address
+ * IP 형식을 검사
+ * --------------------------------------
+ *  ip_address: 검사할 ip 주소
+ *  return : true or false
+ */
 int is_valid_ip_address(char *ip_address)
 {
     int a[4];
@@ -12,6 +19,14 @@ int is_valid_ip_address(char *ip_address)
     return 1;
 }
 
+
+/**
+ * Function: get_row_number
+ * 이중포인터의 row수를 계산
+ * --------------------------------------
+ *  str_list: char 형 이중포인터
+ *  return: 이중포인터 row 수
+ */
 int get_row_number(char** str_list){
     char** temp = str_list;
     int i = 0;
@@ -23,6 +38,13 @@ int get_row_number(char** str_list){
     return i;
 }
 
+/**
+ * Function: convert_addr
+ * 주소목록을 inet_ntoa로 변환
+ * --------------------------------------
+ *  addr_list: address list
+ *  return: inte_ntoa를 통해 변환된 목록
+ */
 char** convert_addr(char** addr_list){
     char** temp = addr_list;
     char** result = (char**)calloc(get_row_number(addr_list)+1,sizeof(char*));
@@ -43,6 +65,13 @@ char** convert_addr(char** addr_list){
 }
 
 
+/**
+ * Function: serialize
+ * host_data를 직렬화
+ * --------------------------------------
+ *  host_data*: 직렬화할 host_data
+ *  return: 직렬화된 문자열
+ */
 char* serialize(struct host_data* hd) {
     char* result;
     char* addr_list = str_join(hd->h_addr_list,",");
@@ -73,6 +102,14 @@ char* serialize(struct host_data* hd) {
     return result;
 }
 
+
+/**
+ * Function: deserialize
+ * 직렬화된 문자열을 구조체로 변경
+ * --------------------------------------
+ *  str*: 직렬화된 문자열
+ *  return: host_data 구조체
+ */
 struct host_data* deserialize(char* str) {
     host_data* hostdata = (host_data*) malloc(sizeof(host_data));
     char** data = str_split(str,"|");
@@ -91,6 +128,14 @@ struct host_data* deserialize(char* str) {
     return hostdata;
 }
 
+/**
+ * Function: log_write
+ * File에 로그를 작성
+ * --------------------------------------
+ *  FILE* f: 로그를저장할 파일
+ *  char* level: log level을 설정
+ *  char* message: log message
+ */
 void log_write(FILE *f,char* level,  char* message) {
 
     time_t timer;
