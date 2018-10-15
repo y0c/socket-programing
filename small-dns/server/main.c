@@ -4,12 +4,6 @@
 #include "db.h"
 
 
-/**
- * Command line arguments
- * -------------------------------
- *  argv[1]: Target Server ip
- *  ------------------------------
- */
 int main(int argc, char* argv[]) {
     int sockfd;
     sock_data sdata;
@@ -21,8 +15,9 @@ int main(int argc, char* argv[]) {
     struct sockaddr_in addr, cliaddr, hostaddr;
     struct hostent *hostent;
     FILE* fp_log = fopen("server.log", "a+");
-    hashtable_t *hashtable = ht_create(65000);
+    hashtable_t *hashtable = ht_create(HASHTABLE_MAX);
 
+    //dns db가 존재하면 File DB에서 메모리로 로딩
     if( file_exists("dns.db") ) {
         hashtable = load_db();
     }
@@ -47,6 +42,7 @@ int main(int argc, char* argv[]) {
         adr_sz = sizeof(cliaddr);
         recvfrom(sockfd, (void*)&sdata, sizeof(sdata), 0, (struct sockaddr*)&cliaddr, &adr_sz);
 
+        //Client 정보 Log 출력
         sprintf(message,"Client Info : %s (%d)", inet_ntoa(cliaddr.sin_addr), ntohs(cliaddr.sin_port));
         log_write(fp_log, INFO, message);
 
@@ -60,6 +56,7 @@ int main(int argc, char* argv[]) {
 
         sdata.status = SUCCESS;
 
+        //해쉬테이블에 query가 존재하면 hit+1 , 그렇지않으면 dns record삽입
         if((data=ht_get(hashtable,query)) == NULL) {
 
             if(is_valid_ip_address(query)) {
@@ -81,6 +78,8 @@ int main(int argc, char* argv[]) {
                 }
             }
 
+
+            //정상적으로 DNS결과를 가져온경우
             if( sdata.status == SUCCESS ) {
                 hostdata->h_name = hostent->h_name;
                 hostdata->h_addrtype = hostent->h_addrtype;
@@ -91,10 +90,12 @@ int main(int argc, char* argv[]) {
 
                 sprintf(message,"Result : %s ", serialize(hostdata));
                 log_write(fp_log, INFO, message);
+
+                //데이터를 직렬화해서 네트워크, 파일에 각각 write
+                data = serialize(hostdata);
+                ht_set(hashtable,query,data);
+                insert_dns_record(query, data);
             }
-            data = serialize(hostdata);
-            ht_set(hashtable,query,data);
-            insert_dns_record(query, data);
         } else {
             hostdata = deserialize(data);
             hostdata->hit = hostdata->hit+1;
@@ -114,6 +115,7 @@ int main(int argc, char* argv[]) {
         free(query);
 
 
+        //data 전송
         sendto(sockfd, (void*)&sdata, sizeof(sdata),0,(struct sockaddr*)&cliaddr, adr_sz);
 
     }

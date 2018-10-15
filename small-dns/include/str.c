@@ -1,5 +1,13 @@
 #include "str.h"
 
+/**
+ * Function: str_rmchr
+ * 문자열에서 특정문자를 제거한다.
+ * Call by Reference
+ * --------------------------------------
+ *  str: 문자열
+ *  chr: 제거할 문자
+ */
 void str_rmchr(char *s, char chr)
 {
    int i, j = 0;
@@ -12,6 +20,13 @@ void str_rmchr(char *s, char chr)
    }
    s[j] = '\0'; /* re-null-terminate */
 }
+/**
+ * Function: str_sep
+ * 문자열을 토큰단위로 분리한다. strtok에서 NULL처리 추가
+ * --------------------------------------
+ *  stringp: 문자열 리스트
+ *  delim: 토큰
+ */
 char *str_sep(char **stringp, const char *delim)
 {
 
@@ -34,6 +49,13 @@ char *str_sep(char **stringp, const char *delim)
     return ptr;
 }
 
+/**
+ * Function: str_split
+ * 문자열을 토큰단위로 분리해서 리스트로 만듬
+ * --------------------------------------
+ *  str: 분리할 문자열
+ *  delim: 구분자
+ */
 char** str_split(const char* str, const char* delim)
 {
     char** result;
@@ -68,6 +90,11 @@ char** str_split(const char* str, const char* delim)
     return result;
 }
 
+/**
+ * Function: str_join
+ * 문자열 리스트를 delim으로 구분지어서 연결
+ * --------------------------------------
+ */
 char* str_join(char** str, char* delim)
 {
     char* result = (char*)calloc(10,sizeof(char));
@@ -85,6 +112,11 @@ char* str_join(char** str, char* delim)
     return result;
 }
 
+/**
+ * Function: str_add
+ * 두개의 문자열을 합쳐서 새로운 문자열 리턴
+ * --------------------------------------
+ */
 char* str_add(char* str1, char* str2) {
     char* result;
 

@@ -1,5 +1,10 @@
 #include "common.h"
 
+/**
+ * Function: print_host_ent
+ * host_data를 포멧팅하여 출력
+ * --------------------------------------
+ */
 void print_host_ent(host_data *hd) {
     printf("Official name : %s\n", hd->h_name);
     printf("Host Type : %s\n", hd->h_addrtype==AF_INET ? "ipv4" : "ipv6");
@@ -20,6 +25,11 @@ void print_host_ent(host_data *hd) {
 }
 
 
+/**
+ * Function: query_to_server
+ * server에 DNS를 질의
+ * --------------------------------------
+ */
 void query_to_server(int sockfd, struct sockaddr_in serv_adr, struct sockaddr_in from_adr, char* query) {
     host_data *hostdata;
     sock_data sdata;
@@ -43,23 +53,13 @@ void query_to_server(int sockfd, struct sockaddr_in serv_adr, struct sockaddr_in
     }
 }
 
-void load_from_file(int sockfd, struct sockaddr_in serv_adr, struct sockaddr_in from_adr) {
-    FILE* fp = fopen("dnslist.txt", "r+");
-    char buffer[1000];
-
-    while(!feof(fp) && fgets(buffer,1000,fp)) {
-
-        str_rmchr(buffer, '\n');
-        query_to_server(sockfd, serv_adr, from_adr, buffer);
-    }
-}
-
 /**
  * Command line arguments
  * -------------------------------
  *  argv[1]: Target Server ip
  *  argv[2]: query for dns or ip
  *  ------------------------------
+ *  nslookup 과 동일한 interface로 구성
  */
 int main(int argc, char* argv[]) {
 
@@ -83,6 +83,7 @@ int main(int argc, char* argv[]) {
     serv_adr.sin_port = htons(PORT);
 
 
+    //ip만 입력한경우 반복해서 dns 질의
     if(argc == 2 ) {
         while(1) {
             printf("> Input Query(DNS or IP) : ");
@@ -95,6 +96,7 @@ int main(int argc, char* argv[]) {
                 query_to_server(sockfd, serv_adr, from_adr, input);
             }
         }
+    //ip 와 dns query가 command line으로 넘겨준경우
     } else if ( argc == 3 ) {
         query_to_server(sockfd, serv_adr, from_adr, argv[2]);
     }
