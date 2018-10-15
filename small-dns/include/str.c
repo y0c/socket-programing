@@ -72,15 +72,15 @@ char** str_split(const char* str, const char* delim)
     tmp = (char*) calloc(strlen(str),sizeof(char));
     strncpy(tmp,str,strlen(str));
 
+    tmp1 = (char*) calloc(strlen(str),sizeof(char));
+    strncpy(tmp1,str,strlen(str));
+
     while ((token = str_sep(&tmp, delim)) != NULL) {
         cnt++;
     }
 
     result = (char**)calloc(cnt,sizeof(char*));
 
-    tmp1 = (char*) calloc(strlen(str),sizeof(char));
-
-    strncpy(tmp1,str,strlen(str));
     while ((token = str_sep(&tmp1, delim)) != NULL) {
         result[idx] = (char*)calloc(strlen(token),sizeof(char*));
         strncpy(result[idx++],token,strlen(token));
