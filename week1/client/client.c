@@ -17,48 +17,51 @@ int main(int argc, char ** argv) {
     char buf[MAX_LINE];
     int len;
 
-    while(1) {
-        if((server_sockfd = socket(AF_INET, SOCK_STREAM, 0 )) == -1 ) {
-            perror("error : ");
-            exit(0);
-        } 
+    if((server_sockfd = socket(AF_INET, SOCK_STREAM, 0 )) == -1 ) {
+        perror("error : ");
+        exit(0);
+    }
 
-        serveraddr.sin_family = AF_INET;
-        serveraddr.sin_addr.s_addr = inet_addr(argv[1]);
-        serveraddr.sin_port = htons(atoi(argv[2]));
+    serveraddr.sin_family = AF_INET;
+    serveraddr.sin_addr.s_addr = inet_addr(argv[1]);
+    serveraddr.sin_port = htons(atoi(argv[2]));
 
-        clinet_len = sizeof(serveraddr);
-        
-        if(connect(server_sockfd, (struct sockaddr*)&serveraddr, clinet_len) == -1 ) {
-            perror("connect error : ");
-            return 1;
-        }
+    clinet_len = sizeof(serveraddr);
 
+    if(connect(server_sockfd, (struct sockaddr*)&serveraddr, clinet_len) == -1 ) {
+        perror("connect error : ");
+        return 1;
+    }
+
+    while(1){
         memset(buf, 0x00, MAX_LINE);
         read(0, buf, MAX_LINE);
-    
+
         len = strlen(buf);
         buf[len-1] = 0;
-
-        if(strcmp(buf, "exit") == 0) {
-            break;
-        }
 
         if( write(server_sockfd, buf, MAX_LINE) <= 0 ) {
             perror("write error : ");
             return 1;
         }
-        
+
+        if(strncmp(buf, "exit",4) == 0) {
+            break;
+        }
+
         memset(buf, 0x00, MAX_LINE);
         if( read(server_sockfd, buf, MAX_LINE) <=0 ) {
             perror("read error : ");
             return 1;
         }
 
+
+
         printf("%s\n", buf);
 
-        close(server_sockfd);
     }
+
+    close(server_sockfd);
 
 
     return 0;
